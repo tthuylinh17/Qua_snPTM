@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật Em</title>
+    <title>Chúc Mừng Sinh Nhật Mai nhó</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     
@@ -68,7 +68,7 @@
             font-family: 'Outfit', sans-serif;
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 15px #ff0055, 0 0 30px #ff0055, 0 0 50px #ff0055;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 15px #f8a7ea, 0 0 30px #f399b7, 0 0 50px #f895b6;
         }
 
         .neon-text-gold {
@@ -91,7 +91,7 @@
         
         <!-- MÀN HÌNH 1: Ngôi sao -->
         <div id="screen-1" class="screen active px-4 text-center">
-            <h1 class="text-3xl md:text-5xl font-bold mb-8 neon-text-gold tracking-widest">Có một điều bất ngờ...</h1>
+            <h1 class="text-3xl md:text-5xl font-bold mb-8 neon-text-gold tracking-widest">Hú hú</h1>
             <p class="text-lg md:text-xl text-gray-200 mb-12 opacity-80 font-medium">Chạm vào ngôi sao nèeee</p>
             
             <button id="start-btn" class="relative w-60 h-60 flex items-center justify-center mx-auto transition-transform duration-300 hover:scale-125 cursor-pointer bg-transparent border-none outline-none group z-50 pointer-events-auto">
@@ -116,9 +116,9 @@
         <div id="screen-3" class="screen px-4 pb-12 flex-col justify-end text-center">
             <div class="flex-grow w-full"></div>
             <div class="z-20 pointer-events-auto">
-                <h1 class="text-4xl md:text-6xl font-black mb-4 neon-text-pink">HAPPY BIRTHDAY!</h1>
+                <h1 class="text-4xl md:text-6xl font-black mb-4 neon-text-pink">Chút mừn sinh nhật hí hí!</h1>
                 <p class="text-lg md:text-2xl text-white mb-6 max-w-2xl mx-auto drop-shadow-xl opacity-95 font-medium">
-                    Tuổi mới thật rực rỡ, bình an và luôn vui vẻ nhé. Anh luôn ở đây! ❤️
+                    Tuổi mới thật rực rỡ, bình an và luôn vui vẻ nhé. ❤️
                 </p>
             </div>
         </div>
@@ -246,7 +246,7 @@
         initBackground();
         animateBackground();
 
-        // 2. TRÁI TIM LÝ TUÂN 
+        // 2. TRÁI TIM LÝ TUÂN (REJECTION SAMPLING - LOẠI BỎ HOÀN TOÀN TRỤC Ở GIỮA)
         let heartParticles = [];
         let isHeartActive = false;
 
@@ -364,10 +364,11 @@
         const bgMusic = document.getElementById('bg-music');
         
         const messages = [
-            "Hôm nay là một ngày đặc biệt...",
-            "Ngày vũ trụ có thêm một thiên thần.",
-            "Cảm ơn em vì đã đến...",
-            "Chuẩn bị nhé..."
+            "Chúc Phạm Tuyết Mai",
+            "Tuổi mới rực rỡ, bùng nổ",
+            "Ra trường kiếm nhìu tiền thành phú bà",
+            "Lun vui vẻ, hạnh phúc",
+            "Nhiều người bạn nhưng t phải là BEST FEN"
         ];
 
         startBtn.addEventListener('click', () => {
