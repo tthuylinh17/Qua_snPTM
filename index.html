@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật Em</title>
+    <!-- Nạp Tailwind CSS để căn chỉnh nhanh -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Nạp phông chữ hiện đại -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #050210; /* Màu nền vũ trụ siêu tối */
+            font-family: 'Quicksand', sans-serif;
+            color: white;
+        }
+
+        /* Canvas nền sao và canvas trái tim */
+        #star-canvas, #heart-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #star-canvas { z-index: 0; }
+        
+        #heart-canvas {
+            z-index: 5;
+            pointer-events: none; 
+        }
+
+        /* Lớp chứa nội dung các màn hình */
+        .content-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none; 
+        }
+
+        /* Các màn hình chính (Fade mượt mà) */
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto; /* Cho phép tương tác khi màn hình active */
+        }
+
+        .neon-text-pink {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            /* Phát sáng màu đỏ hồng rực rỡ */
+            text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 15px #ff0055, 0 0 30px #ff0055, 0 0 50px #ff0055;
+        }
+
+        .neon-text-gold {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 15px #ffd700, 0 0 30px #ffd700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Thẻ Nhạc -->
+    <audio id="bg-music" loop>
+        <source src="nhac.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Canvas Nền Vũ Trụ -->
+    <canvas id="star-canvas"></canvas>
+    
+    <!-- Canvas Trái Tim Lý Tuân -->
+    <canvas id="heart-canvas"></canvas>
+
+    <div class="content-layer">
+        
+        <!-- MÀN HÌNH 1: Ngôi sao mở đầu -->
+        <div id="screen-1" class="screen active px-4 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold mb-8 neon-text-gold tracking-widest">Có một điều bất ngờ...</h1>
+            <p class="text-lg md:text-xl text-gray-200 mb-12 opacity-80 font-medium">Hãy chạm vào ngôi sao bên dưới để bắt đầu nhé</p>
+            
+            <button id="start-btn" class="relative w-40 h-40 flex items-center justify-center mx-auto transition-transform duration-300 hover:scale-125 cursor-pointer bg-transparent border-none outline-none group z-50 pointer-events-auto">
+                <!-- Mã SVG Ngôi sao cute -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full animate-pulse transition-transform duration-300 group-hover:rotate-12" style="filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 45px rgba(255, 215, 0, 0.5));">
+                    <path d="M50 12 L60 38 L88 38 L65 56 L74 84 L50 67 L26 84 L35 56 L12 38 L40 38 Z" fill="#FDE047" stroke="#FACC15" stroke-width="8" stroke-linejoin="round" />
+                    <circle cx="38" cy="52" r="4.5" fill="#3F3F46" />
+                    <circle cx="62" cy="52" r="4.5" fill="#3F3F46" />
+                    <ellipse cx="26" cy="57" rx="6" ry="4" fill="#F9A8D4" opacity="0.9" />
+                    <ellipse cx="74" cy="57" rx="6" ry="4" fill="#F9A8D4" opacity="0.9" />
+                    <path d="M 45 55 C 45 62, 55 62, 55 55 Z" fill="#3F3F46" />
+                    <path d="M 47 58 C 47 61, 53 61, 53 58 Z" fill="#F472B6" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- MÀN HÌNH 2: Chạy chữ thông điệp -->
+        <div id="screen-2" class="screen px-6 text-center">
+            <h2 id="story-text" class="text-3xl md:text-5xl font-bold tracking-wide text-white leading-relaxed opacity-0 transition-opacity duration-1000 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></h2>
+        </div>
+
+        <!-- MÀN HÌNH 3: Trái tim và Chữ ở dưới đáy -->
+        <div id="screen-3" class="screen px-4 pb-12 flex-col justify-end text-center">
+            <!-- Vùng không gian trống đẩy chữ xuống dưới đáy màn hình -->
+            <div class="flex-grow w-full"></div>
+            
+            <div class="z-20 pointer-events-auto">
+                <h1 class="text-4xl md:text-6xl font-black mb-4 neon-text-pink">HAPPY BIRTHDAY!</h1>
+                <p class="text-lg md:text-2xl text-white mb-6 max-w-2xl mx-auto drop-shadow-xl opacity-95 font-medium">
+                    Tuổi mới thật rực rỡ, bình an và luôn vui vẻ nhé. Anh luôn ở đây! ❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const starCanvas = document.getElementById('star-canvas');
+        const starCtx = starCanvas.getContext('2d');
+        const heartCanvas = document.getElementById('heart-canvas');
+        const heartCtx = heartCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            starCanvas.width = window.innerWidth;
+            starCanvas.height = window.innerHeight;
+            heartCanvas.width = window.innerWidth;
+            heartCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- 1. BẦU TRỜI SAO VÀ SAO BĂNG 3D ---
+        let stars = [];
+        let meteors = [];
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * starCanvas.width;
+                this.y = Math.random() * starCanvas.height;
+                this.z = Math.random() * 3 + 1;
+                this.size = (Math.random() * 2 + 1) / this.z;
+                this.speedY = (Math.random() * 0.2 + 0.05) / this.z;
+                this.opacity = Math.random();
+                this.fadeDir = Math.random() > 0.5 ? 1 : -1;
+                this.color = ['#ffffff', '#ffccd5', '#ffe5b4', '#d0f0c0', '#cce7ff'][Math.floor(Math.random() * 5)];
+            }
+            update() {
+                this.y -= this.speedY; 
+                if (this.y < 0) {
+                    this.y = starCanvas.height;
+                    this.x = Math.random() * starCanvas.width;
+                }
+                this.opacity += (0.005 / this.z) * this.fadeDir;
+                if (this.opacity >= 0.9) this.fadeDir = -1;
+                if (this.opacity <= 0.1) this.fadeDir = 1;
+            }
+            draw(ctx) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = Math.max(0, this.opacity);
+                if (this.z < 1.5) { 
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = this.color;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.globalAlpha = 1; 
+            }
+        }
+
+        class Meteor {
+            constructor() {
+                this.reset();
+                this.active = false;
+            }
+            reset() {
+                this.x = Math.random() * starCanvas.width * 1.5;
+                this.y = -50;
+                this.length = Math.random() * 80 + 40;
+                this.speedX = -(Math.random() * 6 + 4);
+                this.speedY = Math.random() * 6 + 4;
+                this.opacity = 0;
+                this.fadeDir = 0.05;
+                this.active = false;
+                this.thickness = Math.random() * 1.5 + 0.5;
+            }
+            spawn() {
+                if (!this.active && Math.random() < 0.003) {
+                    this.reset();
+                    this.active = true;
+                }
+            }
+            update() {
+                if (!this.active) return;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.opacity += this.fadeDir;
+                if (this.opacity >= 1) this.fadeDir = -0.02;
+                if (this.opacity <= 0 && this.fadeDir < 0) this.active = false;
+            }
+            draw(ctx) {
+                if (!this.active) return;
+                ctx.beginPath();
+                let tailX = this.x - this.speedX * (this.length / 10);
+                let tailY = this.y - this.speedY * (this.length / 10);
+                
+                let gradient = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${Math.max(0, this.opacity)})`);
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = this.thickness;
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ffffff';
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function initBackground() {
+            for (let i = 0; i < 200; i++) stars.push(new Star());
+            for (let i = 0; i < 3; i++) meteors.push(new Meteor());
+        }
+
+        function animateBackground() {
+            starCtx.fillStyle = '#050210'; 
+            starCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+            stars.forEach(star => { star.update(); star.draw(starCtx); });
+            meteors.forEach(meteor => { meteor.spawn(); meteor.update(); meteor.draw(starCtx); });
+            requestAnimationFrame(animateBackground);
+        }
+        initBackground();
+        animateBackground();
+
+        // --- 2. TRÁI TIM LÝ TUÂN (GAM MÀU ĐỎ HỒNG, KHÔNG VẾT CẮT) ---
+        let heartParticles = [];
+        let isHeartActive = false;
+
+        class HeartParticle {
+            constructor() {
+                this.t = Math.random() * Math.PI * 2;
+                this.baseScale = Math.min(window.innerWidth, window.innerHeight) * 0.016;
+                if (this.baseScale > 18) this.baseScale = 18;
+
+                let hx = 16 * Math.pow(Math.sin(this.t), 3);
+                let hy = -(13 * Math.cos(this.t) - 5 * Math.cos(2 * this.t) - 2 * Math.cos(3 * this.t) - Math.cos(4 * this.t));
+
+                let areaRadius = Math.sqrt(Math.random());
+                let type = Math.random();
+                let scatterX = 0;
+                let scatterY = 0;
+
+                if (type < 0.8) {
+                    this.tx = hx * this.baseScale * areaRadius;
+                    this.ty = hy * this.baseScale * areaRadius;
+                    scatterX = (Math.random() - 0.5) * 20;
+                    scatterY = (Math.random() - 0.5) * 20;
+                    this.size = Math.random() * 1.5 + 1;
+                    // Bảng màu Đỏ Hồng (Red-Pink / Magenta)
+                    this.color = ['#ff0040', '#ff0055', '#e6004c', '#cc0044'][Math.floor(Math.random() * 4)];
+                } else {
+                    this.tx = hx * this.baseScale;
+                    this.ty = hy * this.baseScale;
+                    scatterX = (Math.random() - 0.5) * 40;
+                    scatterY = (Math.random() - 0.5) * 40;
+                    this.size = Math.random() * 1.2 + 0.5;
+                    this.color = ['#ff1a66', '#ff004d', '#cc003d'][Math.floor(Math.random() * 3)];
+                }
+
+                this.tx += scatterX;
+                this.ty += scatterY;
+
+                let startAngle = Math.random() * Math.PI * 2;
+                let startRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+                this.x = Math.cos(startAngle) * startRadius;
+                this.y = Math.sin(startAngle) * startRadius;
+                
+                this.friction = Math.random() * 0.02 + 0.015;
+            }
+
+            update(beatScale, center) {
+                let currentTx = this.tx * beatScale + center.x;
+                let currentTy = this.ty * beatScale + center.y;
+
+                this.x += (currentTx - this.x) * this.friction;
+                this.y += (currentTy - this.y) * this.friction;
+
+                this.x += (Math.random() - 0.5) * 0.5;
+                this.y += (Math.random() - 0.5) * 0.5;
+            }
+
+            draw(ctx) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function initHeart() {
+            heartParticles = [];
+            for (let i = 0; i < 8000; i++) heartParticles.push(new HeartParticle());
+        }
+
+        function animateHeart() {
+            if (!isHeartActive) {
+                heartCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+                requestAnimationFrame(animateHeart);
+                return;
+            }
+
+            // Xóa bóng mờ phía sau mà không làm đen nền bầu trời (Destination-out)
+            heartCtx.globalCompositeOperation = 'destination-out';
+            heartCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            heartCtx.fillRect(0, 0, heartCanvas.width, heartCanvas.height);
+            
+            // Chế độ Lighter để làm rực hạt sáng
+            heartCtx.globalCompositeOperation = 'lighter';
+
+            let time = Date.now() / 1000;
+            let beatPhase = (time * 1.2) % 1; 
+            let beatScale = 1;
+            if (beatPhase < 0.1) {
+                beatScale = 1 + 0.15 * Math.sin(beatPhase * Math.PI * 10);
+            } else if (beatPhase > 0.2 && beatPhase < 0.3) {
+                beatScale = 1 + 0.1 * Math.sin((beatPhase - 0.2) * Math.PI * 10);
+            }
+
+            let center = { x: heartCanvas.width / 2, y: heartCanvas.height * 0.4 };
+            heartParticles.forEach(p => { p.update(beatScale, center); p.draw(heartCtx); });
+
+            requestAnimationFrame(animateHeart);
+        }
+        initHeart();
+        animateHeart();
+
+        // --- 3. ĐIỀU KHIỂN KỊCH BẢN ---
+        const screen1 = document.getElementById('screen-1');
+        const screen2 = document.getElementById('screen-2');
+        const screen3 = document.getElementById('screen-3');
+        const startBtn = document.getElementById('start-btn');
+        const storyText = document.getElementById('story-text');
+        const bgMusic = document.getElementById('bg-music');
+        
+        const messages = [
+            "Hôm nay là một ngày đặc biệt...",
+            "Ngày vũ trụ có thêm một thiên thần.",
+            "Cảm ơn em vì đã đến...",
+            "Chuẩn bị nhé..."
+        ];
+
+        startBtn.addEventListener('click', () => {
+            if (bgMusic) {
+                bgMusic.volume = 0.6;
+                bgMusic.play().catch(e => console.log("Lỗi phát nhạc: ", e));
+            }
+
+            screen1.classList.remove('active');
+            screen1.style.opacity = '0';
+            screen1.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                screen2.classList.add('active');
+                playStory();
+            }, 1000);
+        });
+
+        async function playStory() {
+            for (let i = 0; i < messages.length; i++) {
+                storyText.innerText = messages[i];
+                storyText.style.opacity = 1;
+                
+                await new Promise(resolve => setTimeout(resolve, 2500));
+                storyText.style.opacity = 0;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            screen2.classList.remove('active');
+            
+            setTimeout(() => {
+                screen3.classList.add('active');
+                isHeartActive = true; 
+            }, 1000);
+        }
+
+    </script>
+</body>
+</html>
